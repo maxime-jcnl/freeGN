@@ -1,0 +1,66 @@
+#map {
+    height: 100vh;
+  }
+  
+  #fileInput {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    background: white;
+    padding: 5px;
+    border-radius: 5px;
+    font-family: sans-serif;
+  }
+  
+  #downloadTiles {
+    position: absolute;
+    top: 50px;
+    left: 10px;
+    z-index: 1000;
+    background: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: sans-serif;
+    cursor: pointer;
+  }
+  
+  #progressContainer {
+    position: absolute;
+    top: 90px;
+    left: 10px;
+    z-index: 1000;
+    background: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: sans-serif;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    width: 200px;
+  }
+  
+  #progressBar {
+    width: 100%;
+  }
+  #clearCache {
+    position: absolute;
+    top: 130px;
+    left: 10px;
+    z-index: 1000;
+    background: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: sans-serif;
+    cursor: pointer;
+  }
+  #loadRefuges {
+    position: absolute;
+    top: 170px;
+    left: 10px;
+    z-index: 1000;
+    background: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: sans-serif;
+    cursor: pointer;
+  }
+  
