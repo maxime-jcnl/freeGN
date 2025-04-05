@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Créer une trace - Carte IGN GPX</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Rock+Salt&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.4.0/gpx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+  <script src="script.js"></script>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="assets/icon-192.png" alt="Logo Carte IGN GPX" />
+      <h1>Créer une trace</h1>
+    </div>
+    <nav>
+      <a href="index.html" class="nav-link">Accueil</a>
+      <a href="carte.html" class="nav-link">Carte</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="map" class="map-container"></div>
+
+    <div class="controls">
+      <button id="importGPX" class="btn">Importer GPX</button>
+      <button id="saveHike" class="btn" style="display:none;">Sauvegarder randonnée</button>
+      <!-- Bouton pour télécharger les tuiles -->
+      <button id="downloadTiles" class="btn">Télécharger tuiles</button>
+      <input type="file" id="fileInput" accept=".gpx" multiple style="display:none;" />
+    </div>
+
+    <!-- Conteneur pour afficher la progression du téléchargement des tuiles -->
+    <div id="progressContainer" style="display:none;">
+      <progress id="progressBar" value="0" max="100"></progress>
+      <span id="progressText"></span>
+    </div>
+
+    <!-- Conteneur pour afficher les infos de la randonnée (distance, dénivelé, etc.) -->
+    <div id="hikeDetails" class="hike-details"></div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Carte IGN GPX</p>
+  </footer>
+
+  <!-- Inclusion unique des scripts en fin de body -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.4.0/gpx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

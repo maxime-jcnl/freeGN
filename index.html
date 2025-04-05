@@ -2,51 +2,48 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>Carte IGN GPX</title>
+  <title>Accueil - Carte IGN GPX</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#4CAF50" />
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Rock+Salt&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
   <header>
     <div class="logo">
-      <img src="icon-192.png" alt="Logo" />
-      <span>Carte IGN GPX</span>
+      <img src="assets/icon-192.png" alt="Logo Carte IGN GPX" />
+      <h1>Carte IGN GPX</h1>
     </div>
-    <nav>
-      <button id="toggleSavedHikes">Randonnées sauvegardées</button>
-      <button id="importGPX">Importer GPX</button>
-      <button id="locateMe">Ma position</button>
-      <button id="downloadTiles">Télécharger tuiles</button>
-      <button id="clearCache">Vider le cache</button>
-      <button id="saveHike" style="display:none;">Sauvegarder randonnée</button>
-    </nav>
   </header>
-  
-  <!-- Input caché pour l'import des fichiers GPX -->
-  <input type="file" id="fileInput" accept=".gpx" multiple style="display:none;" />
-  
-  <!-- Sidebar coulissante pour les randonnées sauvegardées -->
-  <aside id="savedHikesSidebar">
-    <h4>Randonnées sauvegardées</h4>
-    <ul id="savedHikesList"></ul>
-  </aside>
-  
-  <!-- Conteneur de progression pour le téléchargement des tuiles -->
-  <div id="progressContainer" style="display: none;">
-    <progress id="progressBar" value="0" max="100"></progress>
-    <span id="progressText">0 / 0</span>
-  </div>
-  
-  <div id="map"></div>
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+
+  <main>
+    <section class="hero">
+      <div class="overlay">
+        <h2>Bienvenue sur Carte IGN GPX</h2>
+        <p>Votre compagnon de randonnée, moderne et offline.</p>
+        <div class="buttons">
+          <a href="creer.html" class="btn">Créer une trace</a>
+          <a href="carte.html" class="btn">Carte</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="saved-hikes">
+      <h3>Randonnées sauvegardées</h3>
+      <ul id="savedHikesList"></ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Carte IGN GPX</p>
+  </footer>
+
+  <!-- Scripts (inclus une seule fois en fin de body) -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.4.0/gpx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
