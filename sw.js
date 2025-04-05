@@ -1,4 +1,5 @@
 const CACHE_NAME = 'carte-ign-cache-v1';
+
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -15,12 +16,32 @@ const STATIC_ASSETS = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(STATIC_ASSETS);
+    })
   );
 });
 
 self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+
+  // Si c'est une requête de navigation (index.html), retourne toujours l'app shell
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      caches.match('./index.html').then(response => {
+        return response || fetch('./index.html');
+      })
+    );
+    return;
+  }
+
+  // Sinon, essaie de retourner depuis le cache
   event.respondWith(
-    caches.match(event.request).then(res => res || fetch(event.request))
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    }).catch(() => {
+      // En dernier recours : rien
+      return new Response('', { status: 404 });
+    })
   );
 });

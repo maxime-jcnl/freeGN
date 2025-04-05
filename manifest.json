@@ -1,7 +1,7 @@
 {
     "name": "Carte IGN GPX Offline",
     "short_name": "Carte IGN",
-    "start_url": "index.html",
+    "start_url": "./",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#4CAF50",
