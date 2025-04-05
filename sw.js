@@ -32,13 +32,12 @@ self.addEventListener('install', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Intercepter uniquement les requêtes de tuiles WMS IGN
+  // Si la requête est pour les tuiles WMS IGN, on gère ça séparément
   if (url.searchParams.get("REQUEST") === "GetMap") {
     event.respondWith(
       caches.open('carte-ign-cache-v1').then(async (cache) => {
         const cachedResponse = await cache.match(event.request);
         if (cachedResponse) {
-          // ✅ Ajouter un header personnalisé pour indiquer que ça vient du cache
           const newHeaders = new Headers(cachedResponse.headers);
           newHeaders.set("X-Tile-Source", "offline");
 
@@ -60,9 +59,9 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Autres ressources : stratégie cache-first
+  // Autres ressources : stratégie cache-first en ignorant la partie recherche de l'URL
   event.respondWith(
-    caches.match(event.request).then(resp => {
+    caches.match(event.request, { ignoreSearch: true }).then(resp => {
       return resp || fetch(event.request);
     })
   );
