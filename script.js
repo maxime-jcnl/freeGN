@@ -234,3 +234,9 @@ var offlineLayer = new L.TileLayer.LocalCached("", {
 
 offlineLayer.addTo(map);
 
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js')
+    .then(() => console.log("✅ Service Worker enregistré"))
+    .catch(err => console.error("❌ Service Worker échec", err));
+}
