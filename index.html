@@ -12,7 +12,15 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
 <body>
-  
+  <!-- Bouton de sauvegarde (apparaît quand une GPX est importée) -->
+<button id="saveHike" style="display:none;">Sauvegarder la randonnée</button>
+
+<!-- Menu listant les randonnées sauvegardées -->
+<div id="savedHikesMenu" style="position:absolute; top:170px; left:10px; z-index:1000; background:white; padding:10px; border-radius:5px;">
+  <h4>Randonnées sauvegardées</h4>
+  <ul id="savedHikesList"></ul>
+</div>
+
   <input type="file" id="fileInput" accept=".gpx" multiple />
   <button id="downloadTiles">Télécharger les tuiles</button>
   <div id="progressContainer" style="display: none;">

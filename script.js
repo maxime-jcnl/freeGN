@@ -240,3 +240,120 @@ if ('serviceWorker' in navigator) {
     .then(() => console.log("✅ Service Worker enregistré"))
     .catch(err => console.error("❌ Service Worker échec", err));
 }
+
+// Variable globale pour stocker temporairement les GPX importés pour la randonnée en cours
+let currentHikeGPXs = [];
+
+// Lors de l'import de GPX (ton écouteur sur fileInput)
+document.getElementById('fileInput').addEventListener('change', function(event) {
+  const files = event.target.files;
+  
+  // Réinitialiser la randonnée en cours
+  currentHikeGPXs = [];
+  document.getElementById('saveHike').style.display = 'none';
+  
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+      const gpxData = e.target.result;
+      // Stocker le contenu GPX dans le tableau
+      currentHikeGPXs.push(gpxData);
+      
+      // Afficher la trace sur la carte
+      const gpxLayer = new L.GPX(gpxData, {
+        async: true,
+        marker_options: {
+          startIconUrl: null,
+          endIconUrl: null,
+          shadowUrl: null
+        }
+      }).on('loaded', function(e) {
+        map.fitBounds(e.target.getBounds());
+      });
+      gpxLayer.addTo(map);
+      
+      // Dès qu'au moins un GPX est importé, afficher le bouton de sauvegarde
+      document.getElementById('saveHike').style.display = 'block';
+    };
+    
+    reader.readAsText(file);
+  }
+});
+
+// Fonction pour charger les randonnées sauvegardées depuis localForage
+async function loadSavedHikes() {
+  let hikes = await localforage.getItem('savedHikes');
+  return hikes || [];
+}
+
+// Fonction pour mettre à jour le menu des randonnées sauvegardées
+async function updateSavedHikesUI() {
+  const hikes = await loadSavedHikes();
+  const listContainer = document.getElementById('savedHikesList');
+  listContainer.innerHTML = '';
+  
+  hikes.forEach(hike => {
+    const li = document.createElement('li');
+    li.textContent = hike.name + ' (' + new Date(hike.date).toLocaleString() + ') ';
+    
+    // Bouton pour charger la randonnée sauvegardée
+    const loadButton = document.createElement('button');
+    loadButton.textContent = 'Charger';
+    loadButton.addEventListener('click', () => {
+      // Effacer éventuellement les couches GPX actuelles si besoin
+      // Puis charger chacune des traces sauvegardées
+      hike.gpxData.forEach(gpxStr => {
+        const gpxLayer = new L.GPX(gpxStr, {
+          async: true,
+          marker_options: {
+            startIconUrl: null,
+            endIconUrl: null,
+            shadowUrl: null
+          }
+        }).on('loaded', function(e) {
+          map.fitBounds(e.target.getBounds());
+        });
+        gpxLayer.addTo(map);
+      });
+    });
+    
+    li.appendChild(loadButton);
+    listContainer.appendChild(li);
+  });
+}
+
+// Bouton pour sauvegarder la randonnée en cours
+document.getElementById('saveHike').addEventListener('click', async () => {
+  if (currentHikeGPXs.length === 0) {
+    alert("Aucune trace GPX à sauvegarder !");
+    return;
+  }
+  
+  const name = prompt("Donne un nom à ta randonnée :");
+  if (!name) return;
+  
+  // Créer l'objet randonnée
+  const hike = {
+    id: Date.now(), // identifiant unique basé sur le timestamp
+    name: name,
+    date: new Date().toISOString(),
+    gpxData: currentHikeGPXs  // tableau contenant les données GPX
+  };
+  
+  // Récupérer les randonnées existantes
+  let hikes = await localforage.getItem('savedHikes');
+  if (!hikes) hikes = [];
+  hikes.push(hike);
+  await localforage.setItem('savedHikes', hikes);
+  
+  alert("Randonnée sauvegardée !");
+  updateSavedHikesUI();
+  
+  // On peut ensuite déclencher le téléchargement des tuiles pour cette zone
+  // Par exemple, on peut calculer les bounds à partir d'une des traces et lancer cacheTile() pour chaque tuile.
+});
+  
+// Au chargement de la page, mettre à jour l'interface avec les randonnées sauvegardées
+updateSavedHikesUI();

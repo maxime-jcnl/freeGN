@@ -64,3 +64,24 @@
     cursor: pointer;
   }
   
+  #saveHike {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: sans-serif;
+  }
+  
+  #savedHikesMenu {
+    font-family: sans-serif;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  
+  #savedHikesMenu h4 {
+    margin-top: 0;
+  }
+  
