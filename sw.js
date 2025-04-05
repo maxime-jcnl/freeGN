@@ -29,35 +29,41 @@ self.addEventListener('install', event => {
     })()
   );
 });
-
 self.addEventListener('fetch', event => {
-  const requestUrl = new URL(event.request.url);
+  const url = new URL(event.request.url);
 
-  // Si c'est une requête de tuiles WMS (vérifie que REQUEST=GetMap est présent)
-  if (requestUrl.searchParams.get("REQUEST") === "GetMap") {
+  // Intercepter uniquement les requêtes de tuiles WMS IGN
+  if (url.searchParams.get("REQUEST") === "GetMap") {
     event.respondWith(
-      caches.open(CACHE_NAME).then(cache => {
-        return cache.match(event.request).then(response => {
-          return (
-            response ||
-            fetch(event.request).then(networkResponse => {
-              // Mettre en cache la réponse pour les futures requêtes
-              cache.put(event.request, networkResponse.clone());
-              return networkResponse;
-            })
-          );
-        });
+      caches.open('carte-ign-cache-v1').then(async (cache) => {
+        const cachedResponse = await cache.match(event.request);
+        if (cachedResponse) {
+          // ✅ Ajouter un header personnalisé pour indiquer que ça vient du cache
+          const newHeaders = new Headers(cachedResponse.headers);
+          newHeaders.set("X-Tile-Source", "offline");
+
+          const modifiedResponse = new Response(await cachedResponse.blob(), {
+            status: cachedResponse.status,
+            statusText: cachedResponse.statusText,
+            headers: newHeaders
+          });
+
+          return modifiedResponse;
+        } else {
+          return fetch(event.request).then(networkResponse => {
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
+          });
+        }
       })
     );
     return;
   }
 
-  // Pour les autres requêtes, utiliser la stratégie standard
+  // Autres ressources : stratégie cache-first
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    }).catch(() => {
-      return new Response('', { status: 404 });
+    caches.match(event.request).then(resp => {
+      return resp || fetch(event.request);
     })
   );
 });

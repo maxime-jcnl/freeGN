@@ -68,18 +68,49 @@ async function cacheTile(x, y, z) {
 ------------------------------*/
 function initMap() {
   map = L.map("map").setView([45.5, 6.0], 12);
-  // Ajouter la couche WMS IGN
-  var ignLayer = L.tileLayer.wms("https://data.geopf.fr/private/wms-r?", {
-    layers: "SCAN25TOUR_PYR-JPEG_WLD_WM",
-    format: "image/png",
-    transparent: true,
-    version: "1.3.0",
-    attribution: "IGN Scan 25",
-    apikey: "ign_scan_ws"
+
+  const ignLayer = L.TileLayer.extend({
+    createTile: function (coords, done) {
+      const tile = document.createElement("img");
+      const bbox = tile2bbox(coords.x, coords.y, coords.z);
+      const url = `https://data.geopf.fr/private/wms-r?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=SCAN25TOUR_PYR-JPEG_WLD_WM&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&BBOX=${bbox}&apikey=ign_scan_ws`;
+
+      fetch(url, { mode: "cors" })
+        .then(response => {
+          if (response.headers.get("X-Tile-Source") === "offline") {
+            tile.style.outline = "2px solid red";
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          const blobUrl = URL.createObjectURL(blob);
+          tile.src = blobUrl;
+          tile.onload = () => {
+            URL.revokeObjectURL(blobUrl);
+            done(null, tile);
+          };
+        })
+        .catch(err => {
+          console.warn("Tuile non chargée", err);
+          done(err, tile);
+        });
+
+      return tile;
+    }
   });
-  ignLayer.addTo(map);
+
+  const layer = new ignLayer("", {
+    tileSize: 256,
+    minZoom: 10,
+    maxZoom: 16,
+    attribution: "IGN Scan 25",
+    noWrap: true
+  });
+
+  layer.addTo(map);
   startLocationTracking();
 }
+
 
 /* ---------------------------
    Géolocalisation
@@ -123,49 +154,69 @@ function startLocationTracking() {
 
 /* ---------------------------
    Fonctionnalité de téléchargement des tuiles
+   Ajuste la plage de zoom en fonction de la proximité du tracé GPX
 ------------------------------*/
-if (document.getElementById("downloadTiles")) {
-  document.getElementById("downloadTiles").addEventListener("click", async () => {
-    // Récupérer les bounds de toutes les traces GPX sur la carte
-    const layers = map._layers;
-    const gpxBounds = [];
-    for (let id in layers) {
-      if (layers[id] instanceof L.GPX) {
-        const bounds = layers[id].getBounds();
-        gpxBounds.push(bounds);
-      }
+async function downloadTilesForGPX() {
+  const layers = map._layers;
+  const gpxBounds = [];
+  // Récupérer les bounds de chaque trace GPX
+  for (let id in layers) {
+    if (layers[id] instanceof L.GPX) {
+      const bounds = layers[id].getBounds();
+      gpxBounds.push(bounds);
     }
-    if (gpxBounds.length === 0) {
-      alert("Aucune trace GPX chargée !");
-      return;
-    }
-    const allTiles = [];
-    for (let z = 12; z <= 17; z++) {
-      for (let bounds of gpxBounds) {
+  }
+  if (gpxBounds.length === 0) {
+    alert("Aucune trace GPX chargée !");
+    return;
+  }
+  
+  // Définir la plage de zoom :
+  // Pour les zooms 10 à 12 : télécharger sur l'ensemble des bounds du GPX
+  // Pour les zooms 13 à 16 : télécharger uniquement dans une zone tampon autour du GPX
+  const baseZoomMin = 10;
+  const baseZoomMax = 12; // zoom bas → zone large
+  const highDetailZoomMax = 16; // zoom élevé → proche du tracé
+  const bufferFactor = 0.2; // agrandir les bounds de 20% pour zoom élevé
+
+  const allTiles = [];
+  for (let z = baseZoomMin; z <= highDetailZoomMax; z++) {
+    for (let bounds of gpxBounds) {
+      if (z <= baseZoomMax) {
+        // Pour zoom bas, utiliser les bounds exacts
         const tiles = getTilesFromBounds(bounds, z);
+        allTiles.push(...tiles);
+      } else {
+        // Pour zoom élevé, utiliser un buffer autour du GPX
+        const bufferedBounds = bounds.pad(bufferFactor);
+        const tiles = getTilesFromBounds(bufferedBounds, z);
         allTiles.push(...tiles);
       }
     }
-    const total = allTiles.length;
-    let completed = 0;
-    const progressContainer = document.getElementById("progressContainer");
-    const progressBar = document.getElementById("progressBar");
-    const progressText = document.getElementById("progressText");
-    if (progressContainer && progressBar && progressText) {
-      progressContainer.style.display = "block";
-      progressBar.max = total;
-      progressBar.value = 0;
-      progressText.textContent = `0 / ${total}`;
-    }
-    for (let tile of allTiles) {
-      await cacheTile(tile.x, tile.y, tile.z);
-      completed++;
-      if (progressBar) progressBar.value = completed;
-      if (progressText) progressText.textContent = `${completed} / ${total}`;
-    }
-    if (progressContainer) progressContainer.style.display = "none";
-    alert("Téléchargement des tuiles terminé !");
-  });
+  }
+  
+  const total = allTiles.length;
+  let completed = 0;
+  const progressContainer = document.getElementById("progressContainer");
+  const progressBar = document.getElementById("progressBar");
+  const progressText = document.getElementById("progressText");
+  
+  if (progressContainer && progressBar && progressText) {
+    progressContainer.style.display = "block";
+    progressBar.max = total;
+    progressBar.value = 0;
+    progressText.textContent = `0 / ${total}`;
+  }
+  
+  for (let tile of allTiles) {
+    await cacheTile(tile.x, tile.y, tile.z);
+    completed++;
+    if (progressBar) progressBar.value = completed;
+    if (progressText) progressText.textContent = `${completed} / ${total}`;
+  }
+  
+  if (progressContainer) progressContainer.style.display = "none";
+  alert("Téléchargement des tuiles terminé !");
 }
 
 /* ---------------------------
@@ -334,20 +385,27 @@ function locateUser() {
    Initialisation selon la page
 ------------------------------*/
 document.addEventListener("DOMContentLoaded", function() {
-  // Bouton clearCache (si présent)
-  const clearCacheBtn = document.getElementById("clearCache");
-  if (clearCacheBtn) {
-    clearCacheBtn.addEventListener("click", async function() {
-      if (confirm("Voulez-vous vraiment vider le cache des tuiles ?")) {
-        await localforage.clear();
-        alert("Cache vidé !");
-      }
-    });
-  }
+  // Demander le stockage persistant pour éviter la perte des données GPX
+if ('storage' in navigator && 'persist' in navigator.storage) {
+  navigator.storage.persist().then(granted => {
+    if (granted) {
+      console.log("✅ Stockage persistant activé : les traces ne seront pas supprimées.");
+    } else {
+      console.warn("⚠ Stockage persistant non accordé : les données pourraient être effacées.");
+    }
+  });
+}
+
   
   // Mise à jour des randonnées sauvegardées (sur index.html)
   if (document.getElementById("savedHikesList")) {
     updateSavedHikesUI();
+  }
+  
+  // Attacher l'événement du bouton "downloadTiles" (s'il existe)
+  const downloadTilesBtn = document.getElementById("downloadTiles");
+  if (downloadTilesBtn) {
+    downloadTilesBtn.addEventListener("click", downloadTilesForGPX);
   }
   
   // Initialiser la carte si l'élément "map" existe
