@@ -15,12 +15,20 @@ const STATIC_ASSETS = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(STATIC_ASSETS);
-    })
-  );
-});
+    event.waitUntil(
+      (async () => {
+        const cache = await caches.open(CACHE_NAME);
+        for (const asset of STATIC_ASSETS) {
+          try {
+            await cache.add(asset);
+          } catch (err) {
+            console.warn(`⚠️ Échec cache pour : ${asset}`, err);
+          }
+        }
+      })()
+    );
+  });
+  
 
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
