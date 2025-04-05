@@ -463,3 +463,13 @@ function locateUser() {
 
 // Associer au bouton
 document.getElementById('locateMe').addEventListener('click', locateUser);
+
+// Déclenchement de l'import des GPX via le bouton de l'en-tête
+document.getElementById("importGPX").addEventListener("click", function() {
+  document.getElementById("fileInput").click();
+});
+
+// Toggle de la sidebar des randonnées sauvegardées
+document.getElementById("toggleSavedHikes").addEventListener("click", function() {
+  document.getElementById("savedHikesSidebar").classList.toggle("active");
+});

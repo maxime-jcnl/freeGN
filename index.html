@@ -2,35 +2,48 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>Carte IGN + GPX</title>
+  <title>Carte IGN GPX</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#4CAF50" />
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-
+  <meta name="theme-color" content="#4CAF50" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
 <body>
-  <!-- Bouton de sauvegarde (apparaît quand une GPX est importée) -->
-<button id="saveHike" style="display:none;">Sauvegarder la randonnée</button>
-<button id="locateMe">📍 Ma position</button>
- 
-<!-- Menu listant les randonnées sauvegardées -->
-<div id="savedHikesMenu" style="position:absolute; top:170px; left:10px; z-index:1000; background:white; padding:10px; border-radius:5px;">
-  <h4>Randonnées sauvegardées</h4>
-  <ul id="savedHikesList"></ul>
-</div>
-
-  <input type="file" id="fileInput" accept=".gpx" multiple />
-  <button id="downloadTiles">Télécharger les tuiles</button>
+  <header>
+    <div class="logo">
+      <img src="icon-192.png" alt="Logo" />
+      <span>Carte IGN GPX</span>
+    </div>
+    <nav>
+      <button id="toggleSavedHikes">Randonnées sauvegardées</button>
+      <button id="importGPX">Importer GPX</button>
+      <button id="locateMe">Ma position</button>
+      <button id="downloadTiles">Télécharger tuiles</button>
+      <button id="clearCache">Vider le cache</button>
+      <button id="saveHike" style="display:none;">Sauvegarder randonnée</button>
+    </nav>
+  </header>
+  
+  <!-- Input caché pour l'import des fichiers GPX -->
+  <input type="file" id="fileInput" accept=".gpx" multiple style="display:none;" />
+  
+  <!-- Sidebar coulissante pour les randonnées sauvegardées -->
+  <aside id="savedHikesSidebar">
+    <h4>Randonnées sauvegardées</h4>
+    <ul id="savedHikesList"></ul>
+  </aside>
+  
+  <!-- Conteneur de progression pour le téléchargement des tuiles -->
   <div id="progressContainer" style="display: none;">
     <progress id="progressBar" value="0" max="100"></progress>
     <span id="progressText">0 / 0</span>
   </div>
-  <button id="clearCache">Vider le cache</button>
-
+  
   <div id="map"></div>
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.4.0/gpx.min.js"></script>

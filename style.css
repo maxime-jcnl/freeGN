@@ -1,99 +1,128 @@
+/* Reset de base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+/* La carte occupe toute la fenêtre */
 #map {
-    height: 100vh;
-  }
-  
-  #fileInput {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1000;
-    background: white;
-    padding: 5px;
-    border-radius: 5px;
-    font-family: sans-serif;
-  }
-  
-  #downloadTiles {
-    position: absolute;
-    top: 50px;
-    left: 10px;
-    z-index: 1000;
-    background: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-family: sans-serif;
-    cursor: pointer;
-  }
-  
-  #progressContainer {
-    position: absolute;
-    top: 90px;
-    left: 10px;
-    z-index: 1000;
-    background: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-family: sans-serif;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    width: 200px;
-  }
-  
-  #progressBar {
-    width: 100%;
-  }
-  #clearCache {
-    position: absolute;
-    top: 130px;
-    left: 10px;
-    z-index: 1000;
-    background: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-family: sans-serif;
-    cursor: pointer;
-  }
-  #loadRefuges {
-    position: absolute;
-    top: 170px;
-    left: 10px;
-    z-index: 1000;
-    background: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-family: sans-serif;
-    cursor: pointer;
-  }
-  
-  #saveHike {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1000;
-    background: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-family: sans-serif;
-  }
-  
-  #savedHikesMenu {
-    font-family: sans-serif;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  }
-  
-  #savedHikesMenu h4 {
-    margin-top: 0;
-  }
-  
-  #locateMe {
-    position: absolute;
-    top: 10px;
-    left: 220px;
-    z-index: 1000;
-    background: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-family: sans-serif;
-    cursor: pointer;
-  }
-  
+  height: 100vh;
+}
+
+/* Style de l'en-tête */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  z-index: 1000;
+}
+
+header .logo {
+  display: flex;
+  align-items: center;
+}
+
+header .logo img {
+  height: 30px;
+  margin-right: 10px;
+}
+
+header nav button {
+  margin-left: 10px;
+  padding: 8px 12px;
+  border: none;
+  background: #4CAF50;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+header nav button:hover {
+  background: #45a049;
+}
+
+/* Sidebar pour les randonnées sauvegardées */
+#savedHikesSidebar {
+  position: fixed;
+  top: 60px;
+  left: -300px; /* Masquée par défaut */
+  width: 300px;
+  height: calc(100vh - 60px);
+  background: #fff;
+  border-right: 1px solid #ddd;
+  padding: 20px;
+  overflow-y: auto;
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+#savedHikesSidebar.active {
+  left: 0;
+}
+
+#savedHikesSidebar h4 {
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+#savedHikesSidebar ul {
+  list-style: none;
+}
+
+#savedHikesSidebar ul li {
+  margin-bottom: 10px;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#savedHikesSidebar ul li button {
+  padding: 4px 8px;
+  border: none;
+  background: #4CAF50;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+#savedHikesSidebar ul li button:hover {
+  background: #45a049;
+}
+
+/* Conteneur de progression */
+#progressContainer {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+#progressBar {
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+/* Pour décaler le contenu de la carte en dessous de l'en-tête */
+body {
+  padding-top: 60px;
+}
