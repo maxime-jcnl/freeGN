@@ -1,12 +1,64 @@
 // Initialiser la carte
 var map = L.map("map").setView([45.5, 6.0], 12);
 
+
+function startLocationTracking() {
+  if (!navigator.geolocation) {
+    console.warn("Géolocalisation non supportée.");
+    return;
+  }
+
+  navigator.geolocation.watchPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
+
+      const latlng = L.latLng(lat, lng);
+
+      if (userLocationMarker) {
+        userLocationMarker.setLatLng(latlng);
+        userLocationCircle.setLatLng(latlng).setRadius(accuracy);
+      } else {
+        userLocationMarker = L.circleMarker(latlng, {
+          radius: 6,
+          color: '#136AEC',
+          fillColor: '#2A93EE',
+          fillOpacity: 1
+        }).addTo(map);
+
+        userLocationCircle = L.circle(latlng, {
+          radius: accuracy,
+          color: '#136AEC',
+          fillColor: '#2A93EE',
+          fillOpacity: 0.15
+        }).addTo(map);
+
+        map.setView(latlng, 15);
+      }
+    },
+    (error) => {
+      console.warn("Erreur de géolocalisation : " + error.message);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 10000,
+      timeout: 10000
+    }
+  );
+}
+
+// Lancer automatiquement la localisation dès le chargement
+startLocationTracking();
+
 document.getElementById("clearCache").addEventListener("click", async () => {
   if (confirm("Voulez-vous vraiment vider le cache des tuiles ?")) {
     await localforage.clear();
     alert("Cache vidé !");
   }
 });
+
+
 
 // Ajouter la couche WMS IGN
 var ignLayer = L.tileLayer.wms("https://data.geopf.fr/private/wms-r?", {
@@ -357,3 +409,57 @@ document.getElementById('saveHike').addEventListener('click', async () => {
   
 // Au chargement de la page, mettre à jour l'interface avec les randonnées sauvegardées
 updateSavedHikesUI();
+
+let userLocationMarker = null;
+let userLocationCircle = null;
+
+// Fonction pour afficher la localisation
+function locateUser() {
+  if (!navigator.geolocation) {
+    alert("La géolocalisation n'est pas supportée par votre navigateur.");
+    return;
+  }
+
+  navigator.geolocation.watchPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
+
+      const latlng = L.latLng(lat, lng);
+
+      if (userLocationMarker) {
+        userLocationMarker.setLatLng(latlng);
+        userLocationCircle.setLatLng(latlng).setRadius(accuracy);
+      } else {
+        userLocationMarker = L.circleMarker(latlng, {
+          radius: 6,
+          color: '#136AEC',
+          fillColor: '#2A93EE',
+          fillOpacity: 1
+        }).addTo(map);
+
+        userLocationCircle = L.circle(latlng, {
+          radius: accuracy,
+          color: '#136AEC',
+          fillColor: '#2A93EE',
+          fillOpacity: 0.15
+        }).addTo(map);
+
+        // Centrer la carte sur la première position
+        map.setView(latlng, 15);
+      }
+    },
+    (error) => {
+      alert("Erreur de géolocalisation : " + error.message);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 10000,
+      timeout: 10000
+    }
+  );
+}
+
+// Associer au bouton
+document.getElementById('locateMe').addEventListener('click', locateUser);
