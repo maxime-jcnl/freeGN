@@ -199,7 +199,7 @@ document.getElementById("downloadTiles").addEventListener("click", async () => {
 
   const allTiles = [];
 
-  for (let z = 12; z <= 16; z++) {
+  for (let z = 10; z <= 18; z++) {
     for (let bounds of gpxBounds) {
       const tiles = getTilesFromBounds(bounds, z);
       allTiles.push(...tiles);
